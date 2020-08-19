@@ -3,14 +3,14 @@ services:
   reverseproxy:
     build:
       context: .
-    image: ibrahimawe/reverseproxy 
+    image: ibrahimawe/reverseproxy
   backend_user:
     build:
       context: ../../user
     image: ibrahimawe/user
   backend_feed:
     build:
-      context: ../../feed  
+      context: ../../feed
     image: ibrahimawe/feed
   frontend:
     build:
