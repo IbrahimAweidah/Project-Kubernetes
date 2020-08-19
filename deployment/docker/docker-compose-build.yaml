@@ -3,16 +3,16 @@ services:
   reverseproxy:
     build:
       context: .
-    image: mmallahham/reverseproxy 
+    image: ibrahimawe/reverseproxy 
   backend_user:
     build:
-      context: ../../udagram-user
-    image: mmallahham/udagram-user
+      context: ../../user
+    image: ibrahimawe/user
   backend_feed:
     build:
-      context: ../../udagram-feed  
-    image: mmallahham/udagram-feed
+      context: ../../feed  
+    image: ibrahimawe/feed
   frontend:
     build:
       context: ../../udagram-frontend  
-    image: mmallahham/udagram-frontend
+    image: ibrahimawe/udagram-frontend

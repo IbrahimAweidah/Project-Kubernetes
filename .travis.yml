@@ -1,0 +1,45 @@
+language: minimal
+
+services: docker
+
+env:
+  - DOCKER_COMPOSE_VERSION=1.23.2
+
+before_install:
+  - docker -v && docker-compose -v
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+  - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+  - chmod +x ./kubectl
+  - sudo mv ./kubectl /usr/local/bin/kubectl
+  - kubectl version --short --client
+  - curl -o aws-iam-authenticator https://amazon-eks.s3.us-west-2.amazonaws.com/1.17.9/2020-07-08/bin/linux/amd64/aws-iam-authenticator
+  - chmod +x ./aws-iam-authenticator
+  - mkdir -p $HOME/bin && cp ./aws-iam-authenticator $HOME/bin/aws-iam-authenticator && export PATH=$PATH:$HOME/bin
+  - echo 'export PATH=$PATH:$HOME/bin' >> ~/.bashrc
+  - sudo apt-get install gettext-base
+  - mkdir -p $HOME/.kube
+  - echo "$CONFIG" | base64 --decode > ${HOME}/.kube/config
+  - sudo chown $(id -u):$(id -g) $HOME/.kube/config
+  - sudo apt-get -y install python3-pip
+  - sudo pip install --upgrade pip
+  - sudo pip install awscli
+  - mkdir -p ~/.aws
+  - echo "$AWS_CONFIG" | base64 --decode > ~/.aws/config
+  - echo "$AWS_CREDENTIALS" | base64 --decode > ~/.aws/credentials
+
+install: 
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - docker-compose -f deployment/docker/docker-compose-build.yaml build --parallel
+  - docker-compose -f deployment/docker/docker-compose-build.yaml push 
+
+  - envsubst < deployment/k8s/backend-feed-deployment.yaml | kubectl apply -f -
+  - envsubst < deployment/k8s/backend-feed-service.yaml | kubectl apply -f -
+  - envsubst < deployment/k8s/backend-user-deployment.yaml | kubectl apply -f -
+  - envsubst < deployment/k8s/backend-user-service.yaml | kubectl apply -f -
+  - envsubst < deployment/k8s/frontend-deployment.yaml | kubectl apply -f -
+  - envsubst < deployment/k8s/frontend-service.yaml | kubectl apply -f -
+  - envsubst < deployment/k8s/reverseproxy-deployment.yaml | kubectl apply -f -
+  - envsubst < deployment/k8s/reverseproxy-service.yaml | kubectl apply -f -
