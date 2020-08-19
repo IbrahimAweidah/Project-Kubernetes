@@ -6,8 +6,8 @@ services:
     image: ibrahimawe/reverseproxy
   backend_user:
     build:
-      context: ../../user
-    image: ibrahimawe/user
+      context: ../../users
+    image: ibrahimawe/users
   backend_feed:
     build:
       context: ../../feed
