@@ -19,8 +19,6 @@ spec:
       - image: ibrahimawe/udagram-frontend
         name: frontend
         imagePullPolicy: Always          
-        ports:
-        - containerPort: 80
         resources:
           requests:
             memory: "64Mi"
